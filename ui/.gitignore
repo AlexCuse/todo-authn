@@ -1,0 +1,5 @@
+/node_modules/
+# check in the built app so we can run immediately after cloning
+# /public/build/
+
+.DS_Store

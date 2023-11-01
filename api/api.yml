@@ -1,0 +1,136 @@
+openapi: 3.0.0
+info:
+  title: TODO API
+  description: A simple API for managing TODO items.
+  version: 1.0.0
+paths:
+  /todos:
+    get:
+      summary: Get All TODOs
+      description: Retrieve a list of all TODO items.
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Todo"
+    post:
+      summary: Create a TODO
+      description: Create a new TODO item.
+      security:
+        - BearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+              required:
+                - titrequestle
+      responses:
+        '201':
+          description: TODO created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Todo"
+
+  /todos/{id}:
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Get a TODO by ID
+      description: Retrieve a TODO item by its ID.
+      security:
+        - BearerAuth: [ ]
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Todo"
+        '404':
+          description: TODO not found
+    put:
+      summary: Update a TODO by ID
+      description: Update a TODO item by its ID.
+      security:
+        - BearerAuth: [ ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                completed:
+                  type: boolean
+              required:
+                - title
+                - completed
+      responses:
+        '200':
+          description: TODO updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Todo"
+        '404':
+          description: TODO not found
+    delete:
+      summary: Delete a TODO by ID
+      description: Delete a TODO item by its ID.
+      security:
+        - BearerAuth: [ ]
+      responses:
+        '204':
+          description: TODO deleted successfully
+        '404':
+          description: TODO not found
+components:
+  schemas:
+    Todo:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        completed:
+          type: boolean
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - BearerAuth: [ ]
+

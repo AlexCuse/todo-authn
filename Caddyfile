@@ -1,0 +1,45 @@
+todoauthn.com {
+	tls /etc/caddy/certs/todoauthn.com+2.pem /etc/caddy/certs/todoauthn.com+2-key.pem
+
+	handle {
+		root * /ui
+		try_files {path} /index.html
+		file_server
+	}
+}
+
+auth.todoauthn.com {
+	tls /etc/caddy/certs/todoauthn.com+2.pem /etc/caddy/certs/todoauthn.com+2-key.pem
+
+    handle {
+        reverse_proxy auth:443 {
+            header_down Access-Control-Allow-Origin https://todoauthn.com
+            header_down Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+            header_down Access-Control-Allow-Headers "*"
+        }
+    }
+}
+
+api.todoauthn.com {
+	tls /etc/caddy/certs/todoauthn.com+2.pem /etc/caddy/certs/todoauthn.com+2-key.pem
+
+    handle {
+        reverse_proxy api:5001 {
+            header_down Access-Control-Allow-Origin https://todoauthn.com
+            header_down Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+            header_down Access-Control-Allow-Headers "*"
+        }
+    }
+}
+
+swagger.todoauthn.com {
+	tls /etc/caddy/certs/todoauthn.com+2.pem /etc/caddy/certs/todoauthn.com+2-key.pem
+
+    # dont judge me
+    handle /swagger.json {
+        reverse_proxy api:5001
+    }
+    handle {
+        reverse_proxy swagger:8080
+    }
+}

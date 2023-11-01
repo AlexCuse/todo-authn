@@ -1,0 +1,58 @@
+version: '3.8'
+services:
+  api:
+    hostname: api
+    build: .
+    env_file:
+      - .env
+
+  auth:
+    hostname: auth
+    image: keratin/authn-server:latest
+    env_file:
+      - .env
+    command: sh -c "./authn migrate && ./authn server"
+    depends_on:
+      - postgres
+      - redis
+
+  postgres:
+    hostname: postgres
+    image: postgres:15
+    ports:
+      - "5435:5435"
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/1_todoauth_schema.sql
+    command:
+      -p 5435
+
+  swagger:
+    image: swaggerapi/swagger-ui:latest
+    environment:
+      SWAGGER_JSON_URL: https://swagger.todoauthn.com/swagger.json
+
+  redis:
+    image: redis:latest
+    command:
+      --port 6380
+
+  caddy:
+    image: caddy
+    volumes:
+      - ./ui/public:/ui
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - .certs:/etc/caddy/certs
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - api
+      - auth
+
+volumes:
+  postgres_data:

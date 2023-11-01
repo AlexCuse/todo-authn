@@ -1,0 +1,12 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    codegen:
+
+    queries: "todos.sql"
+    schema: "schema.sql"
+    gen:
+      go:
+        package: "db"
+        sql_package: "pgx/v5"
+        out: "."
