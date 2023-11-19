@@ -9,13 +9,12 @@ The application has two parts:
 
 Infrastructure is provided via postgres, redis and caddy (and authn).
 
-To run it you will need docker and certutil installed.
-
-`$ make ssl` will generate a self-signed certificate for localhost.
-
-`$ make run` will start and build the application.
-
 # running
+
+Set up your hosts file for a few todoauthn subdomains
+```
+127.0.0.1       todoauthn.com auth.todoauthn.com api.todoauthn.com swagger.todoauthn.com
+```
 
 Generate a certificate using certutil and make it available to caddy, then run through docker.
 ```shell
