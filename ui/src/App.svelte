@@ -2,18 +2,17 @@
 <script>
   import { onMount } from 'svelte';
   import { getTodos, addTodo, updateTodo, deleteTodo } from './apiService';
-  import Login from "./Login.svelte";
   import * as authn from "keratin-authn";
 
   let todos = [];
   let task = '';
 
   authn.setHost("https://auth.todoauthn.com/");
-  authn.setCookieStore("todo", {path: "/", sameSite: "None"});
+  authn.setCookieStore("todo", {path: "/", sameSite: "None", domain: "todoauthn.com"});
 
   onMount(async () => {
     await authn.importSession();
-    todos = await getTodos();
+    todos = await getTodos() ?? [];
   });
 
   async function addNewTodo() {
@@ -32,9 +31,48 @@
     await deleteTodo(id);
     todos = todos.filter(todo => todo.id !== id);
   }
+
+  export let isRegistration = false; // Prop to specify whether it's a registration form
+
+  let email = '';
+  let password = '';
+
+  async function handleSubmit() {
+    if (isRegistration) {
+      await authn.signup({username:email, password:password});
+    } else {
+      await authn.login({username: email, password:password});
+    }
+    window.location.reload();
+  }
+
+  async function logout() {
+    await authn.logout();
+    window.location.reload();
+  }
 </script>
+<!-- TODO: this is not updated after login until we refresh the page a couple times -->
 {#if authn.session() === ""}
-  <Login />
+  <div>
+    <h2>{isRegistration ? 'Register' : 'Login'}</h2>
+    <form>
+      <label for="email">Email:</label>
+      <input type="email" id="email" bind:value={email} />
+
+      <label for="password">Password:</label>
+      <input type="password" id="password" bind:value={password} />
+
+      <button on:click={handleSubmit}>
+        {isRegistration ? 'Register' : 'Login'}
+      </button>
+
+
+      <label>
+        <input type="checkbox" bind:checked={isRegistration} />
+        I'm new here
+      </label>
+    </form>
+  </div>
 {:else}
 <main>
   <h1>TODO List</h1>
@@ -53,5 +91,8 @@
       </li>
     {/each}
   </ul>
+  <div>
+    <button on:click={logout}>Logout</button>
+  </div>
 </main>
 {/if}
